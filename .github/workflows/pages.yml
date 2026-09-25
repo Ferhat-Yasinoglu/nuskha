@@ -1,0 +1,48 @@
+# main'e giren her değişiklik GitHub Pages'e çıkar: https://ferhat-yasinoglu.github.io/nuskha/
+#
+# configure-pages `enablement: true` ile Pages'i kendisi açmayı dener. İzin
+# verilmezse tek elle adım: Settings -> Pages -> Build and deployment ->
+# Source: "GitHub Actions"; sonra bu workflow'da "Re-run" yeter.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  yayinla:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.dagitim.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+        with:
+          enablement: true
+      - name: Siteyi hazirla
+        run: |
+          set -euo pipefail
+          # Listeler index.html'e gomulu olmali (tools/build.mjs); yoksa ilac listesi bos acilir.
+          if grep -q "const DATA = /\*__DATA__\*/null;" index.html; then
+            echo "::error::index.html icine veri gomulmemis: node tools/build.mjs"
+            exit 1
+          fi
+          mkdir site
+          cp index.html sw.js site/
+          # Service worker onbellek anahtari her dagitimda degissin, yoksa guncelleme ulasmaz.
+          sed -i "s/__SURUM__/${GITHUB_SHA::7}/g" site/sw.js
+          if grep -q "__SURUM__" site/sw.js; then echo "::error::__SURUM__ kaldi"; exit 1; fi
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - id: dagitim
+        uses: actions/deploy-pages@v5
