@@ -459,6 +459,8 @@
       <span class="sp"></span>
       <a class="btn sm" href="#/">بازگشت به صفحه اصلی</a>
     </div>
+    <div class="notice" id="inapp-notice" hidden>این صفحه داخل برنامه‌ی دیگری (مثل تلگرام، واتساپ یا انستاگرام) باز شده و آنجا چاپ کار نمی‌کند.
+      از منوی ⋯ گزینه‌ی «Open in Safari» یا «Open in Chrome» را بزنید، یا لینک را در Safari/Chrome باز کنید.</div>
     <div class="sheet-wrap">
       <form class="sheet" id="sheet" autocomplete="off" onsubmit="return false">
         <div class="sh-head" id="c-head"></div>
@@ -1061,7 +1063,9 @@ function restoreDraft(d) {
   return true;
 }
 
-async function saveComposer({ silent = false } = {}) {
+// ذخیره دو بخش دارد: prepareRec همزمان (بدون await) است تا «چاپ نسخه» window.print را در همان
+// لحظه‌ی کلیک صدا کند؛ Safari (آیفون و مک) چاپی را که بعد از await بیاید بی‌صدا رد می‌کند.
+function prepareRec({ silent = false } = {}) {
   const r = readComposer();
   if (!r.name) { if (!silent) { toast('نام مریض را بنویسید', true); $('#sheet').elements.name.focus(); } return null; }
   if (!silent && !r.items.length && !confirm('هیچ دوایی نوشته نشده. باز هم چاپ و ذخیره شود؟')) return null;
@@ -1070,10 +1074,8 @@ async function saveComposer({ silent = false } = {}) {
     const old = S.rx.find(x => x.id === C.id);
     if (!old || norm(old.name) !== norm(r.name) || old.shamsi !== shamsi()) Object.assign(C, { id: null, sana: null, autoSeq: r.seq });
   }
-  // شماره‌ی خودکار هنگام ذخیره از دیتابیس حساب شود (روز عوض شده، یا برنامه در دو تب باز است).
+  // شماره‌ی خودکار هنگام ذخیره دوباره حساب شود (مثلاً اگر روز عوض شده).
   if (C.id == null && r.seq === String(C.autoSeq)) {
-    S.rx = await DB.all('rx');
-    sortRx();
     r.seq = C.autoSeq = String(nextSeq());
     $('#sheet').elements.seq.value = r.seq;
   }
@@ -1081,6 +1083,9 @@ async function saveComposer({ silent = false } = {}) {
   const sana = C.sana || now;
   const rec = { ...r, sana, shamsi: shamsi(sana) };
   if (C.id != null) rec.id = C.id;
+  return rec;
+}
+async function persistRec(rec) {
   rec.id = await DB.put('rx', rec);
   const i = S.rx.findIndex(x => x.id === rec.id);
   if (i >= 0) S.rx[i] = rec; else S.rx.push(rec);
@@ -1092,12 +1097,17 @@ async function saveComposer({ silent = false } = {}) {
   await learnCustom(rec);
   return rec;
 }
+async function saveComposer(opts) {
+  const rec = prepareRec(opts);
+  return rec ? persistRec(rec) : null;
+}
 
-async function printComposer() {
-  try {
-    const rec = await saveComposer();
-    if (rec) printRecord(rec);
-  } catch (err) { console.error(err); toast('ذخیره نشد: ' + errText(err), true); }
+function printComposer() {
+  const rec = prepareRec();
+  if (!rec) return;
+  // ذخیره همین حالا شروع می‌شود (DB.put پیش از چاپ فرستاده می‌شود)؛ چاپ بی‌درنگ، در همان کلیک.
+  persistRec(rec).catch(err => { console.error(err); toast('ذخیره نشد: ' + errText(err), true); });
+  printRecord(rec);
 }
 $('#print-btn').addEventListener('click', printComposer);
 $('#new-btn').addEventListener('click', () => {
@@ -1140,6 +1150,13 @@ function sheetHtml(rec) {
 }
 // فقط وقتی body.printing است، چاپ به‌جای صفحه ورق نسخه را نشان می‌دهد؛ بعد از چاپ ورق پاک می‌شود
 // تا چاپ بعدی (مثلاً از منوی مرورگر) هیچ‌وقت نسخه‌ی مریض قبلی را نبرد.
+/** مرورگرهای داخل برنامه‌ها (تلگرام، انستاگرام، فیسبوک، ...) پنجره‌ی چاپ ندارند. */
+const IN_APP = (() => {
+  const ua = navigator.userAgent || '';
+  const ios = /iPhone|iPad|iPod/.test(ua);
+  return /FBAN|FBAV|Instagram|Line\/|Telegram|WhatsApp|Snapchat/i.test(ua) || (ios && !/Safari\//.test(ua)) || /; wv\)/.test(ua);
+})();
+$('#inapp-notice').hidden = !IN_APP;
 function printRecord(rec) {
   $('#print-area').innerHTML = sheetHtml(rec);
   document.body.classList.add('printing');
