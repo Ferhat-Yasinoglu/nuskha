@@ -362,6 +362,14 @@
   #toast.err { background: var(--danger); }
 
   #print-area { display: none; }
+  #print-area .sheet { width: auto; min-height: 296mm; padding: 15mm 13mm 16mm; box-shadow: none; }
+  /* نام دراز مریض ورق را از کاغذ بیرون نکند: فقط خانه‌ی نام خورد و دو سطره می‌شود. */
+  #print-area .sh-meta { grid-template-columns: auto minmax(0, 2.6fr) minmax(max-content, .8fr) minmax(max-content, .8fr) minmax(max-content, 1.3fr); }
+  #print-area .sh-meta .m.name { white-space: normal; min-width: 0; }
+  #print-area .sh-meta .m.name > span { overflow-wrap: anywhere; }
+  /* برای اندازه گرفتن پیش از چاپ: همان پهنای کاغذ A4، بیرون از دید. */
+  #print-area.measure { display: block; position: absolute; left: -10000px; top: 0; width: 210mm; }
+  #print-area.measure .sheet { min-height: 0; }
 
   @media (max-width: 860px) {
     .tiles { grid-template-columns: 1fr; }
@@ -394,11 +402,6 @@
     body.printing { background: #fff; min-height: 0; }
     body.printing > *:not(#print-area) { display: none !important; }
     #print-area { display: block; }
-    #print-area .sheet { width: auto; min-height: 296mm; padding: 15mm 13mm 16mm; box-shadow: none; }
-    /* نام دراز مریض ورق را از کاغذ بیرون نکند: فقط خانه‌ی نام خورد و دو سطره می‌شود. */
-    #print-area .sh-meta { grid-template-columns: auto minmax(0, 2.6fr) minmax(max-content, .8fr) minmax(max-content, .8fr) minmax(max-content, 1.3fr); }
-    #print-area .sh-meta .m.name { white-space: normal; min-width: 0; }
-    #print-area .sh-meta .m.name > span { overflow-wrap: anywhere; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
 </style>
@@ -1159,8 +1162,33 @@ const IN_APP = (() => {
   return /FBAN|FBAV|Instagram|Line\/|Telegram|WhatsApp|Snapchat/i.test(ua) || (ios && !/Safari\//.test(ua)) || /; wv\)/.test(ua);
 })();
 $('#inapp-notice').hidden = !IN_APP;
+/**
+ * نسخه همیشه در یک صفحه‌ی A4 جا شود: اگر سرخط دراز یا دواها زیاد باشد، کل ورق کمی خورد
+ * می‌شود (نه کمتر از ۶۰٪). بعد از آن اگر باز هم جا نشد، به صفحه‌ی دوم می‌رود.
+ */
+function fitToPage() {
+  const area = $('#print-area');
+  const sheet = $('.sheet', area);
+  if (!sheet) return;
+  const mm = 96 / 25.4;
+  const pageH = 296 * mm;
+  sheet.style.zoom = '';
+  sheet.style.minHeight = '';
+  area.classList.add('measure');
+  let z = 1;
+  for (let k = 0; k < 4; k++) {
+    const h = sheet.getBoundingClientRect().height;
+    if (h <= pageH) break;
+    z = Math.max(0.6, z * pageH / h * 0.995);
+    sheet.style.zoom = z;
+    if (z === 0.6) break;
+  }
+  area.classList.remove('measure');
+  if (z < 1) { sheet.style.zoom = z; sheet.style.minHeight = `${(296 / z).toFixed(2)}mm`; }
+}
 function printRecord(rec) {
   $('#print-area').innerHTML = sheetHtml(rec);
+  fitToPage();
   document.body.classList.add('printing');
   window.print();
 }
@@ -1172,6 +1200,7 @@ window.addEventListener('afterprint', () => {
 window.addEventListener('beforeprint', () => {
   if (document.body.classList.contains('printing') || $('#view-composer').hidden) return;
   $('#print-area').innerHTML = sheetHtml({ ...readComposer(), shamsi: shamsi(C.sana || new Date()) });
+  fitToPage();
   document.body.classList.add('printing');
   saveComposer({ silent: true }).catch(err => { console.error(err); toast('ذخیره نشد: ' + errText(err), true); });
 });
