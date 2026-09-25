@@ -1164,14 +1164,22 @@ const IN_APP = (() => {
 $('#inapp-notice').hidden = !IN_APP;
 /**
  * نسخه همیشه در یک صفحه‌ی A4 جا شود: اگر سرخط دراز یا دواها زیاد باشد، کل ورق کمی خورد
- * می‌شود (نه کمتر از ۶۰٪). بعد از آن اگر باز هم جا نشد، به صفحه‌ی دوم می‌رود.
+ * می‌شود (نه کمتر از ۵۰٪). بعد از آن اگر باز هم جا نشد، به صفحه‌ی دوم می‌رود.
  */
+// Safari (آیفون، آیپد و مک) و همه‌ی مرورگرهای آیفون حاشیه‌ی @page را نادیده می‌گیرند و حاشیه‌ی خودشان را
+// می‌گذارند، پس جای چاپ از ۲۹۷ ملی‌متر کمتر است. در آیفون با ۱۰۰٪ ورق ۲۹۶ ملی‌متری دو صفحه شد و با ۸۵٪ یک صفحه.
+const WEBKIT_PRINT = (() => {
+  const ua = navigator.userAgent || '';
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  return ios || (/Safari\//.test(ua) && !/Chrome|Chromium|CriOS|Edg|OPR|FxiOS|Firefox/.test(ua));
+})();
+const PRINT_PAGE_MM = WEBKIT_PRINT ? 250 : 296;
 function fitToPage() {
   const area = $('#print-area');
   const sheet = $('.sheet', area);
   if (!sheet) return;
   const mm = 96 / 25.4;
-  const pageH = 296 * mm;
+  const pageH = PRINT_PAGE_MM * mm;
   sheet.style.zoom = '';
   sheet.style.minHeight = '';
   area.classList.add('measure');
@@ -1179,12 +1187,13 @@ function fitToPage() {
   for (let k = 0; k < 4; k++) {
     const h = sheet.getBoundingClientRect().height;
     if (h <= pageH) break;
-    z = Math.max(0.6, z * pageH / h * 0.995);
+    z = Math.max(0.5, z * pageH / h * 0.995);
     sheet.style.zoom = z;
-    if (z === 0.6) break;
+    if (z === 0.5) break;
   }
   area.classList.remove('measure');
-  if (z < 1) { sheet.style.zoom = z; sheet.style.minHeight = `${(296 / z).toFixed(2)}mm`; }
+  if (z < 1) sheet.style.zoom = z;
+  sheet.style.minHeight = `${(PRINT_PAGE_MM / z).toFixed(2)}mm`;
 }
 function printRecord(rec) {
   $('#print-area').innerHTML = sheetHtml(rec);
