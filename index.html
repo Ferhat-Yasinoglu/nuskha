@@ -111,7 +111,7 @@
   .tile span { color: var(--muted); font-size: .9rem; }
 
   /* ---------- ورق نسخه ---------- */
-  .sheet-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .sheet-wrap { overflow-x: hidden; padding-bottom: 4px; }
   .sheet {
     background: #fff; color: #000; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 9mm 10mm;
     box-shadow: 0 2px 14px rgba(0,0,0,.12); display: flex; flex-direction: column; font-size: 10.5pt; line-height: 1.45;
@@ -378,22 +378,8 @@
     .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .span3, .span2 { grid-column: 1 / -1; }
   }
-  /* روی تلفن ورق یک‌ستونه می‌شود؛ چاپ همیشه A4 است. */
+  /* روی تلفن ورق نسخه همان A4 دو ستونه است و با zoom کوچک می‌شود (fitSheetToScreen). */
   @media (max-width: 820px) {
-    .sheet-wrap .sheet { width: 100%; min-height: 0; padding: calc(12px + 9mm) calc(8px + 7mm); }
-    .sheet-wrap .sh-left { margin: 0 0 12px; padding: 0 0 12px; background: linear-gradient(var(--gold-l), var(--gold-l)) left bottom / 100% .6px no-repeat; }
-    .sheet-wrap .sh-rx { padding: 0; }
-    .sheet-wrap .sh-meta { grid-template-columns: 1fr 1fr; }
-    .sheet-wrap .sh-meta .name { grid-column: 1 / -1; }
-    .sheet-wrap .sh-meta .name .inp { flex: 1; }
-    .sheet-wrap .sh-body { grid-template-columns: 1fr; min-height: 0; }
-    .sheet-wrap .sh-rx { padding: 8px 0; }
-    .sheet-wrap .sh-head { grid-template-columns: 1fr auto; }
-    .sheet-wrap .sh-head .en { display: none; }
-    .sheet-wrap .sh-head .bism { font-size: 1.15em; gap: 2mm; white-space: nowrap; }
-    .sheet-wrap .sh-head .bism::before, .sheet-wrap .sh-head .bism::after { width: 7mm; }
-    .sheet-wrap .sh-head { grid-template-columns: 1fr 64px; }
-    .sheet-wrap .sh-head .logo { width: 64px; height: 64px; }
     .kv { grid-template-columns: 1fr; gap: 0; }
     .kv dd { margin-bottom: 8px; }
   }
@@ -1015,9 +1001,20 @@ function loadIntoComposer(rec) {
   saveDraft();
 }
 
+/** روی صفحه‌ی خورد (تلفن) همان ورق A4 دو ستونه نشان داده می‌شود، فقط کوچک‌تر تا در پهنای صفحه جا شود. */
+function fitSheetToScreen() {
+  const wrap = $('.sheet-wrap');
+  const sheet = $('#sheet');
+  if (!wrap || !sheet || $('#view-composer').hidden) return;
+  const full = 210 * 96 / 25.4;
+  const z = Math.min(1, wrap.clientWidth / full);
+  sheet.style.zoom = z < 1 ? z.toFixed(4) : '';
+}
+window.addEventListener('resize', fitSheetToScreen);
 function enterComposer() {
   $('#c-head').innerHTML = headHtml();
   $('#c-foot').innerHTML = footHtml();
+  fitSheetToScreen();
   // نسخه‌ی چاپ‌شده از روز دیگر پاک شود؛ نسخه‌ی خالی شماره‌ی امروز را بگیرد.
   const old = C.id != null ? S.rx.find(x => x.id === C.id) : null;
   if (old && !C.dirty && old.shamsi !== shamsi()) clearComposer();
