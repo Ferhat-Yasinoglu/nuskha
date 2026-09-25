@@ -161,6 +161,73 @@
   .sheet .vit .inp { width: 100%; }
   .add-link { border: 1px dashed #9cc9b1; background: #f6fbf8; color: var(--brand-dark); border-radius: 6px; padding: 0 8px; cursor: pointer; font-size: .85em; line-height: 1.7; }
   .add-link:hover { background: var(--brand-soft); }
+
+  /* ---------- طرح ورق نسخه: کاشی‌های فیروزه‌ای روضه‌ی مزار شریف ---------- */
+  .sheet {
+    --s-ink: #0d3533; --s-deep: #0f5f5c; --s-acc: #138a84; --s-soft: #eaf5f3; --s-line: #b9ddd8; --s-gold: #b8913a;
+    position: relative; color: var(--s-ink);
+    padding-top: calc(9mm + 7mm); padding-bottom: calc(9mm + 7mm);
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' fill='%230f5f5c'/%3E%3Cg fill='none' stroke='%237fd1c7' stroke-width='1.1'%3E%3Crect x='7' y='7' width='14' height='14'/%3E%3Crect x='7' y='7' width='14' height='14' transform='rotate(45 14 14)'/%3E%3Cpath d='M0 14h4M24 14h4M14 0v4M14 24v4'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='2.2' fill='%23d8b45a'/%3E%3C/svg%3E") repeat-x top left / 7mm 7mm,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' fill='%230f5f5c'/%3E%3Cg fill='none' stroke='%237fd1c7' stroke-width='1.1'%3E%3Crect x='7' y='7' width='14' height='14'/%3E%3Crect x='7' y='7' width='14' height='14' transform='rotate(45 14 14)'/%3E%3Cpath d='M0 14h4M24 14h4M14 0v4M14 24v4'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='2.2' fill='%23d8b45a'/%3E%3C/svg%3E") repeat-x bottom left / 7mm 7mm,
+      #fffdf8;
+  }
+  .sheet::before {
+    content: ""; position: absolute; inset: 7mm 0; pointer-events: none;
+    border-top: 1.5px solid var(--s-gold); border-bottom: 1.5px solid var(--s-gold);
+  }
+  .sh-head { border-bottom: 0; padding: 4px 0 10px; position: relative; }
+  .sh-head::after {
+    content: "✦"; position: absolute; left: 0; right: 0; bottom: -.6em; text-align: center;
+    color: var(--s-gold); font-size: .9em; line-height: 1;
+    background: linear-gradient(var(--s-acc), var(--s-acc)) left center / calc(50% - 1.2em) 1.5px no-repeat,
+                linear-gradient(var(--s-acc), var(--s-acc)) right center / calc(50% - 1.2em) 1.5px no-repeat;
+  }
+  .sh-head .l0 { color: var(--s-deep); font-size: 1.4em; letter-spacing: .01em; }
+  .sh-head .ln { color: #35524f; }
+  .sh-head .logo {
+    border-radius: 50%; padding: 2.5mm; background: #fff;
+    box-shadow: 0 0 0 1.5px var(--s-gold), 0 0 0 4px #fff, 0 0 0 5px var(--s-line);
+  }
+  .sh-meta {
+    margin-top: 12px; padding: 6px 12px; border: 0; border-radius: 999px;
+    background: var(--s-soft); box-shadow: inset 0 0 0 1px var(--s-line);
+  }
+  .sh-meta .m b { color: var(--s-deep); }
+  .sh-body { margin-top: 10px; gap: 0; }
+  .sh-left {
+    border-right: 0; padding: 12px 12px; margin-right: 12px; border-radius: 14px;
+    background: linear-gradient(180deg, var(--s-soft), #f7fbfa 60%, transparent);
+    box-shadow: inset 0 0 0 1px var(--s-line);
+  }
+  .sh-left h4 { color: var(--s-deep); font-size: .8em; text-transform: uppercase; letter-spacing: .08em; }
+  .sh-left h4::before { content: "✦"; color: var(--s-gold); font-size: .95em; }
+  .sh-left ul { list-style: none; padding-left: 4px; }
+  .sh-left li::before { content: "•"; color: var(--s-acc); margin-right: 6px; font-weight: 700; }
+  .sel li::before { content: none; }
+  .vit { background: #fff; border-radius: 8px; padding: 6px 8px; box-shadow: inset 0 0 0 1px var(--s-line); }
+  .vit .v, .sheet .vit .inp { border-bottom-color: var(--s-line); }
+  .sh-rx { position: relative; padding-left: 4px; }
+  .sh-rx::after {
+    content: "℞"; position: absolute; right: 6%; bottom: 8%; pointer-events: none;
+    font-family: Georgia, serif; font-size: 170pt; line-height: 1; color: var(--s-acc); opacity: .06;
+  }
+  .rx-sym {
+    width: 1.5em; height: 1.5em; font-size: 2em; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--s-deep); color: #fff; box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--s-gold); margin-bottom: 10px;
+  }
+  ol.items { counter-reset: none; position: relative; z-index: 1; }
+  ol.items li { border-bottom: 1px dashed var(--s-line); padding: 7px 2px; }
+  .it1 .nm > bdi:first-of-type { color: var(--s-deep); }
+  .sh-foot {
+    border-top: 0; margin-top: 10px; padding: 8px 14px; border-radius: 12px;
+    background: var(--s-deep); color: #fff; align-items: center;
+  }
+  .sh-foot .ic { display: inline-flex; align-items: center; gap: 6px; }
+  .sh-foot svg { width: 1.1em; height: 1.1em; flex: none; color: #7fd1c7; }
+  .sh-foot .note { color: #f3dfa6; text-align: center; border-top: 1px solid rgba(255,255,255,.18); padding-top: 4px; margin-top: 2px; }
+  .sheet .inp { background: transparent; border-bottom-color: var(--s-line); }
+  .sheet .inp:focus { background: var(--s-soft); border-bottom-color: var(--s-acc); }
   .rm { border: 0; background: none; color: var(--danger); cursor: pointer; padding: 0 4px; font-size: 1em; line-height: 1; }
   .sel li { display: flex; gap: 4px; align-items: baseline; }
   .sel li span { flex: 1; }
@@ -245,12 +312,14 @@
   }
   /* روی تلفن ورق یک‌ستونه می‌شود؛ چاپ همیشه A4 است. */
   @media (max-width: 820px) {
-    .sheet-wrap .sheet { width: 100%; min-height: 0; padding: 12px; }
+    .sheet-wrap .sheet { width: 100%; min-height: 0; padding: calc(12px + 7mm) 12px; }
+    .sheet-wrap .sh-left { margin-right: 0; margin-bottom: 10px; }
+    .sheet-wrap .sh-meta { border-radius: 14px; }
     .sheet-wrap .sh-meta { grid-template-columns: 1fr 1fr; }
     .sheet-wrap .sh-meta .name { grid-column: 1 / -1; }
     .sheet-wrap .sh-meta .name .inp { flex: 1; }
     .sheet-wrap .sh-body { grid-template-columns: 1fr; min-height: 0; }
-    .sheet-wrap .sh-left { border-right: 0; border-bottom: 1.5px solid var(--brand); padding: 8px 0; }
+    .sheet-wrap .sh-left { border-right: 0; padding: 12px; }
     .sheet-wrap .sh-rx { padding: 8px 0; }
     .sheet-wrap .sh-head { grid-template-columns: 1fr auto; }
     .sheet-wrap .sh-head .en { display: none; }
@@ -263,7 +332,7 @@
     body.printing { background: #fff; min-height: 0; }
     body.printing > *:not(#print-area) { display: none !important; }
     #print-area { display: block; }
-    #print-area .sheet { width: auto; min-height: 296mm; padding: 10mm; box-shadow: none; }
+    #print-area .sheet { width: auto; min-height: 296mm; padding: 16mm 10mm; box-shadow: none; }
     /* نام دراز مریض ورق را از کاغذ بیرون نکند: فقط خانه‌ی نام خورد و دو سطره می‌شود. */
     #print-area .sh-meta { grid-template-columns: auto minmax(0, 2.6fr) minmax(max-content, .8fr) minmax(max-content, .8fr) minmax(max-content, 1.3fr); }
     #print-area .sh-meta .m.name { white-space: normal; min-width: 0; }
@@ -745,8 +814,10 @@ function headHtml(s = S.settings) {
   return `<div class="fa">${block(lines(s.headFa))}</div><div class="logo">${logo}</div><div class="en">${block(lines(s.headEn))}</div>`;
 }
 function footHtml(s = S.settings) {
-  return `${s.phone ? `<span>شماره تماس: <span dir="ltr">${esc(s.phone)}</span></span>` : ''}
-    ${s.address ? `<span>آدرس: ${esc(s.address)}</span>` : ''}
+  const phone = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>';
+  const pin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  return `${s.phone ? `<span class="ic">${phone}شماره تماس: <span dir="ltr">${esc(s.phone)}</span></span>` : ''}
+    ${s.address ? `<span class="ic">${pin}آدرس: ${esc(s.address)}</span>` : ''}
     ${s.note ? `<span class="note">${esc(s.note)}</span>` : ''}`;
 }
 
